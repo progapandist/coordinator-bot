@@ -14,8 +14,9 @@ Bot.on :message do |message|
   # TODO: write custom classes with HTTParty mixins"
 
   case message.text
-  when /Moscow/
-    geocoder_response = HTTParty.get("https://maps.googleapis.com/maps/api/geocode/json?address=Moscow")
+  when /coordinates/
+    city = message.text
+    geocoder_response = HTTParty.get("https://maps.googleapis.com/maps/api/geocode/json?address=#{city}")
     parsed = JSON.parse(geocoder_response.body)
     coord = parsed['results'].first['geometry']['location']
     message.reply(text: "#{coord['lat']} : #{coord['lng']}")
