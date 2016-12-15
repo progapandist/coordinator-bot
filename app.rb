@@ -9,5 +9,5 @@ get '/webhook' do
 end
 
 get "/" do
-  Tester.say_hi
+  "Nothing to see here"
 end
