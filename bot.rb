@@ -14,12 +14,17 @@ Bot.on :message do |message|
   # TODO: write custom classes with HTTParty mixins"
 
   case message.text
-  when /coordinates/
-    city = message.text
-    geocoder_response = HTTParty.get("https://maps.googleapis.com/maps/api/geocode/json?address=#{city}")
+  when /coordinates/i
+    message.reply(text: "Which city?")
+    process_coordinates
+  end
+end
+
+def process_coordinates
+  Bot.on :message do |message|
+    geocoder_response = HTTParty.get("https://maps.googleapis.com/maps/api/geocode/json?address=#{message.text}")
     parsed = JSON.parse(geocoder_response.body)
     coord = parsed['results'].first['geometry']['location']
     message.reply(text: "#{coord['lat']} : #{coord['lng']}")
   end
-
 end
