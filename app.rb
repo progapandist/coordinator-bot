@@ -1,9 +1,6 @@
 require 'sinatra'
 require_relative 'tester'
 
-set :port, 5000
-enable :logging
-
 # NOTE: ENV variables should be set directly in terminal for testing on localhost
 
 # Talk to Facebook

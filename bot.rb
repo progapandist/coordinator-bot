@@ -25,6 +25,11 @@ def process_coordinates
   Bot.on :message do |message|
     geocoder_response = HTTParty.get("https://maps.googleapis.com/maps/api/geocode/json?address=#{message.text}")
     parsed = JSON.parse(geocoder_response.body)
+    if parsed['status'] == 'ZERO_RESULTS'
+      message.reply(text: "City not found. Ask me again!")
+      ask_for_city
+      break
+    end
     coord = parsed['results'].first['geometry']['location']
     message.reply(text: "#{coord['lat']} : #{coord['lng']}")
     ask_for_city
