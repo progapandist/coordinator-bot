@@ -19,7 +19,6 @@ def wait_for_user_to_mention_coordinates
   end
 end
 
-#https://maps.googleapis.com/maps/api/geocode/json?address=
 # TODO: write custom classes with HTTParty mixins"
 def process_coordinates
   Bot.on :message do |message|
