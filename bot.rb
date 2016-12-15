@@ -9,7 +9,7 @@ include Facebook::Messenger
 # Subcribe bot to the page
 Facebook::Messenger::Subscriptions.subscribe(access_token: ENV["ACCESS_TOKEN"])
 
-def ask_for_city
+def wait_for_user_to_mention_coordinates
   Bot.on :message do |message|
     case message.text
     when /coordinates/i
@@ -27,14 +27,14 @@ def process_coordinates
     parsed = JSON.parse(geocoder_response.body)
     if parsed['status'] == 'ZERO_RESULTS'
       message.reply(text: "City not found. Ask me again!")
-      ask_for_city
+      wait_for_user_to_mention_coordinates
       break
     end
     coord = parsed['results'].first['geometry']['location']
     message.reply(text: "#{coord['lat']} : #{coord['lng']}")
-    ask_for_city
+    wait_for_user_to_mention_coordinates
   end
 end
 
 # launch the loop
-ask_for_city
+wait_for_user_to_mention_coordinates
