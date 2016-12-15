@@ -29,7 +29,7 @@ def process_coordinates
     message.reply(text: "#{coord['lat']} : #{coord['lng']}")
     ask_city
   end
-
-  ask_city
-
 end
+
+# launch the loop 
+ask_city
