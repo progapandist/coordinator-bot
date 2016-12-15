@@ -14,6 +14,7 @@ IDIOMS = {
   ask_location: "Where do you think you are?"
 }
 
+
 def wait_for_user_input
   Bot.on :message do |message|
     case message.text
