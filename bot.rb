@@ -23,13 +23,13 @@ end
 def process_coordinates
   Bot.on :message do |message|
     geocoder_response = HTTParty.get("https://maps.googleapis.com/maps/api/geocode/json?address=#{message.text}")
-    parsed = JSON.parse(geocoder_response.body)
-    if parsed['status'] == 'ZERO_RESULTS'
+    parsed_response = JSON.parse(geocoder_response.body)
+    if parsed_response['status'] == 'ZERO_RESULTS'
       message.reply(text: "City not found. Ask me again!")
       wait_for_user_to_mention_coordinates
       break
     end
-    coord = parsed['results'].first['geometry']['location']
+    coord = parsed_response['results'].first['geometry']['location']
     message.reply(text: "#{coord['lat']} : #{coord['lng']}")
     wait_for_user_to_mention_coordinates
   end
