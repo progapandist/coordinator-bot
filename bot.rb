@@ -2,18 +2,17 @@ require 'facebook/messenger'
 require 'httparty'
 require 'json'
 include Facebook::Messenger
-# NOTE: ENV variables should be set directly in terminal for testing on localhost
+# NOTE: ENV variables should be set directly in terminal for localhost
 
 # IMPORTANT! Subcribe your bot to your page
-Facebook::Messenger::Subscriptions.subscribe(access_token: ENV["ACCESS_TOKEN"])
+Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
 
-API_URL = "https://maps.googleapis.com/maps/api/geocode/json?address="
+API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='.freeze
 
 IDIOMS = {
-  not_found: "Did not quite get that. Come again, please!",
-  ask_location: "Where do you think you are?"
-}
-
+  not_found: 'Did not quite get that. Come again, please!',
+  ask_location: 'Where do you think you are?'
+}.freeze
 
 def wait_for_user_input
   Bot.on :message do |message|
@@ -47,7 +46,7 @@ def handle_user_command
   Bot.on :message do |message|
     puts "Received '#{message.inspect}' from #{message.sender}" # debug only
     parsed_response = get_parsed_response(API_URL, message.text)
-    if !parsed_response
+    unless parsed_response
       message.reply(text: IDIOMS[:not_found])
       wait_for_user_input
       break
