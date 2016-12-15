@@ -31,7 +31,7 @@ end
 def process_coordinates
   handle_user_command do |api_response, message|
     coord = extract_coordinates(api_response)
-    message.reply(text: "#{coord['lat']} : #{coord['lng']}")
+    message.reply(text: "Latitude: #{coord['lat']}, Longitude: #{coord['lng']}")
   end
 end
 

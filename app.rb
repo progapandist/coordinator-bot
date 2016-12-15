@@ -1,5 +1,4 @@
 require 'sinatra'
-require_relative 'tester'
 
 # NOTE: ENV variables should be set directly in terminal for testing on localhost
 
