@@ -44,6 +44,7 @@ end
 # DRY-out the bot wrapper
 def handle_user_command
   Bot.on :message do |message|
+    puts "Received '#{message.inspect}' from #{message.sender}" # debug only
     parsed_response = get_parsed_response(API_URL, message.text)
     if !parsed_response
       message.reply(text: IDIOMS[:not_found])
