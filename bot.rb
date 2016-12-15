@@ -9,7 +9,7 @@ include Facebook::Messenger
 # Subcribe bot to the page
 Facebook::Messenger::Subscriptions.subscribe(access_token: ENV["ACCESS_TOKEN"])
 
-def ask_city
+def ask_for_city
   Bot.on :message do |message|
     case message.text
     when /coordinates/i
@@ -27,9 +27,9 @@ def process_coordinates
     parsed = JSON.parse(geocoder_response.body)
     coord = parsed['results'].first['geometry']['location']
     message.reply(text: "#{coord['lat']} : #{coord['lng']}")
-    ask_city
+    ask_for_city
   end
 end
 
-# launch the loop 
-ask_city
+# launch the loop
+ask_for_city
