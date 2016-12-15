@@ -13,7 +13,7 @@ def wait_for_user_to_mention_coordinates
   Bot.on :message do |message|
     case message.text
     when /coordinates/i
-      message.reply(text: "Which city?")
+      message.reply(text: "Where are you?")
       process_coordinates
     end
   end
@@ -30,6 +30,7 @@ def process_coordinates
       break
     end
     coord = parsed_response['results'].first['geometry']['location']
+    message.type
     message.reply(text: "#{coord['lat']} : #{coord['lng']}")
     wait_for_user_to_mention_coordinates
   end
