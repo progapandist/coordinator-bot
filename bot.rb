@@ -9,7 +9,6 @@ include Facebook::Messenger
 # Subcribe bot to the page
 Facebook::Messenger::Subscriptions.subscribe(access_token: ENV["ACCESS_TOKEN"])
 
-
 def ask_city
   Bot.on :message do |message|
     case message.text
@@ -19,8 +18,6 @@ def ask_city
     end
   end
 end
-
-ask_city
 
 #https://maps.googleapis.com/maps/api/geocode/json?address=
 # TODO: write custom classes with HTTParty mixins"
@@ -32,4 +29,7 @@ def process_coordinates
     message.reply(text: "#{coord['lat']} : #{coord['lng']}")
     ask_city
   end
+
+  ask_city
+
 end
