@@ -49,7 +49,7 @@ def handle_user_command
     unless parsed_response
       message.reply(text: IDIOMS[:not_found])
       wait_for_user_input
-      return 
+      return
     end
     message.type # let user know we're doing something
     yield(parsed_response, message)
