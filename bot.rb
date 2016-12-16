@@ -1,75 +1,47 @@
 require 'facebook/messenger'
-require 'httparty'
-require 'json'
+require 'httparty' # you should require this one
+require 'json' # and that one
 include Facebook::Messenger
-# NOTE: ENV variables should be set directly in terminal for localhost
+# NOTE: ENV variables should be set directly in terminal for testing on localhost
 
-# IMPORTANT! Subcribe your bot to your page
-Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
+# Subcribe bot to your page
+Facebook::Messenger::Subscriptions.subscribe(access_token: ENV["ACCESS_TOKEN"])
 
-API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='.freeze
+API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='
 
-IDIOMS = {
-  not_found: 'Did not quite get that. Come again, please!',
-  ask_location: 'Where do you think you are?'
-}.freeze
-
-def wait_for_user_input
-  Bot.on :message do |message|
-    case message.text
-    when /coord/i, /gps/i
-      message.reply(text: IDIOMS[:ask_location])
-      process_coordinates
-    when /full ad/i # we got the user even the address is misspelled
-      message.reply(text: IDIOMS[:ask_location])
-      show_full_address
-    end
+Bot.on :message do |message|
+  puts "Received '#{message.inspect}' from #{message.sender}" # debug purposes
+  case message.text
+  when /coord/i, /gps/i # We use regexp to react to any command that will have this combinations of symbols
+    message.reply("Give me the address!")
+    # process_coordinates # we call a separate function that will handle GPS look-up and talk to you back
   end
 end
 
 def process_coordinates
-  handle_user_command do |api_response, message|
-    coord = extract_coordinates(api_response)
-    message.reply(text: "Latitude: #{coord['lat']}, Longitude: #{coord['lng']}")
-  end
-end
-
-def show_full_address
-  handle_user_command do |api_response, message|
-    full_address = extract_full_address(api_response)
-    message.reply(text: full_address)
-  end
-end
-
-# DRY-out the bot wrapper
-def handle_user_command
   Bot.on :message do |message|
-    puts "Received '#{message.inspect}' from #{message.sender}" # debug only
-    parsed_response = get_parsed_response(API_URL, message.text)
-    unless parsed_response
-      message.reply(text: IDIOMS[:not_found])
-      wait_for_user_input
-      return 
+    puts "Received '#{message.inspect}' from #{message.sender}" # debug purposes
+    parsed_response = get_parsed_response(API_URL, message.text) # talk to Google API
+    unless parsed_response # The input was unintelligible
+      message.reply(text: "I did not quite get that. Bye!")
+      return # bye bye
     end
-    message.type # let user know we're doing something
-    yield(parsed_response, message)
-    wait_for_user_input
+    message.type # trick user into thinking we type something with our fingers, HA HA HA
+    coord = extract_coordinates(parsed_response) # we have a separate method for that
+    message.reply(text: "Latitude: #{coord['lat']}, Longitude: #{coord['lng']}. Bye!")
   end
 end
 
 def get_parsed_response(url, query)
+  # Use HTTParty gem to make a get request
   response = HTTParty.get(url + query)
+  # Parse the resulting JSON so it's now a Ruby Hash
   parsed = JSON.parse(response.body)
+  # Return nil if we got no results from the API.
   parsed['status'] != 'ZERO_RESULTS' ? parsed : nil
 end
 
+# Look inside the hash to find coordinates
 def extract_coordinates(parsed)
   parsed['results'].first['geometry']['location']
 end
-
-def extract_full_address(parsed)
-  parsed['results'].first['formatted_address']
-end
-
-# launch the loop
-wait_for_user_input
