@@ -11,8 +11,22 @@ API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='.freeze
 
 IDIOMS = {
   not_found: 'There were no resutls. Ask me again, please',
-  ask_location: 'Enter destination'
+  ask_location: 'Enter destination',
+  unknown_command: 'Sorry, I did not recognize your command'
 }.freeze
+
+MENU_REPLIES = [
+  {
+    content_type: 'text',
+    title: 'Coordinates',
+    payload: 'COORDINATES'
+  },
+  {
+    content_type: 'text',
+    title: 'Full address',
+    payload: 'FULL_ADDRESS'
+  }
+]
 
 # helper function to send messages declaratively
 def say(recipient_id, text, quick_replies = nil)
@@ -28,25 +42,15 @@ end
 
 
 def wait_for_any_input
-  qr1 = {
-    content_type: 'text',
-    title: 'Coordinates',
-    payload: 'COORDINATES'
-  }
-
-  qr2 = {
-    content_type: 'text',
-    title: 'Full address',
-    payload: 'FULL_ADDRESS'
-  }
-
   Bot.on :message do |message|
-    sender_id = message.sender['id']
-    say(sender_id, 'What would you like to know?', [qr1, qr2])
-    wait_for_command
+    show_replies_menu(message.sender['id'], MENU_REPLIES)
   end
 end
 
+def show_replies_menu(id, quick_replies)
+  say(id, 'What would you like to know?', quick_replies)
+  wait_for_command
+end
 
 def wait_for_command
   Bot.on :message do |message|
@@ -58,6 +62,9 @@ def wait_for_command
     when /full ad/i # we got the user even the address is misspelled
       message.reply(text: IDIOMS[:ask_location])
       show_full_address
+    else
+      message.reply(text: IDIOMS[:unknown_command])
+      show_replies_menu(message.sender['id'], MENU_REPLIES)
     end
   end
 end
@@ -86,7 +93,7 @@ def handle_api_request
     else
       message.reply(text: IDIOMS[:not_found])
     end
-    wait_for_any_input
+    wait_for_command
   end
 end
 
@@ -106,36 +113,3 @@ end
 
 # launch the loop
 wait_for_any_input
-
-# Don't forget to enable messaging_postbacks in console
-# Bot.on :postback do |postback|
-#   sender_id = postback.sender['id']
-#   case postback.payload
-#   when 'COORDINATES'
-#     puts "processing coordinates"
-#     say(sender_id, IDIOMS[:ask_location], [{content_type: 'text', title: 'Moscow', payload: 'MOSCOW'}])
-#     process_coordinates
-#   when 'FULL_ADDRESS'
-#     show_full_address
-#   end
-# end
-
-# def greet_human
-#   Bot.on :message do |message|
-#     message.reply(
-#       attachment: {
-#         type: 'template',
-#         payload: {
-#           template_type: 'button',
-#           text: 'Hello! How can I help you',
-#           buttons: [
-#             { type: 'postback', title: 'Give me my coordinates',
-#                                 payload: 'COORDINATES' },
-#             { type: 'postback', title: 'Give me my full postal address',
-#                                 payload: 'FULL_ADDRESS' }
-#           ]
-#         }
-#       }
-#     )
-#   end
-# end
