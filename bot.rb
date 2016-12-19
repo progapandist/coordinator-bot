@@ -14,9 +14,55 @@ IDIOMS = {
   ask_location: 'Where do you think you are?'
 }.freeze
 
+# Don't forget to enable messaging_postbacks in console
+Bot.on :postback do |postback|
+  sender_id = postback.sender['id']
+  case postback.payload
+  when 'COORDINATES'
+    puts "processing coordinates"
+    say(sender_id, IDIOMS[:ask_location], [{content_type: 'text', title: 'Moscow', payload: 'MOSCOW'}])
+    process_coordinates
+  when 'FULL_ADDRESS'
+    show_full_address
+  end
+end
+
+# helper function to send messages declaratively
+def say(recipient_id, text, quick_replies = nil, attachment = nil)
+  message_options = {
+  recipient: { id: recipient_id },
+  message: { text: text }
+  }
+
+  if quick_replies
+    message_options[:message][:quick_replies] = quick_replies
+  end
+
+  if attachment
+    message_options[:message][:attachment] = attachment
+  end
+
+  Bot.deliver(message_options, access_token: ENV['ACCESS_TOKEN'])
+end
+
 def wait_for_user_input
   Bot.on :message do |message|
+    puts message.sender['id']
     case message.text
+    # when 'hey'.downcase, 'hi'.downcase, /hello/i
+    #   say(sender_id, 'What do you want to do?', attachment: {
+    #     type: 'template',
+    #     payload: {
+    #       template_type: 'button',
+    #       text: 'Hello! How can I help you',
+    #       buttons: [
+    #         { type: 'postback', title: 'Give me my coordinates',
+    #                             payload: 'COORDINATES' },
+    #         { type: 'postback', title: 'Give me my full postal address',
+    #                             payload: 'FULL_ADDRESS' }
+    #       ]
+    #     }
+    #   })
     when /coord/i, /gps/i
       message.reply(text: IDIOMS[:ask_location])
       process_coordinates
@@ -27,22 +73,42 @@ def wait_for_user_input
   end
 end
 
+def greet_human
+  Bot.on :message do |message|
+    message.reply(
+      attachment: {
+        type: 'template',
+        payload: {
+          template_type: 'button',
+          text: 'Hello! How can I help you',
+          buttons: [
+            { type: 'postback', title: 'Give me my coordinates',
+                                payload: 'COORDINATES' },
+            { type: 'postback', title: 'Give me my full postal address',
+                                payload: 'FULL_ADDRESS' }
+          ]
+        }
+      }
+    )
+  end
+end
+
 def process_coordinates
-  handle_user_command do |api_response, message|
+  handle_api_request do |api_response, message|
     coord = extract_coordinates(api_response)
     message.reply(text: "Latitude: #{coord['lat']}, Longitude: #{coord['lng']}")
   end
 end
 
 def show_full_address
-  handle_user_command do |api_response, message|
+  handle_api_request do |api_response, message|
     full_address = extract_full_address(api_response)
     message.reply(text: full_address)
   end
 end
 
 # DRY-out the bot wrapper
-def handle_user_command
+def handle_api_request
   Bot.on :message do |message|
     puts "Received '#{message.inspect}' from #{message.sender}" # debug only
     parsed_response = get_parsed_response(API_URL, message.text)
