@@ -12,7 +12,8 @@ API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='.freeze
 IDIOMS = {
   not_found: 'There were no resutls. Ask me again, please',
   ask_location: 'Enter destination',
-  unknown_command: 'Sorry, I did not recognize your command'
+  unknown_command: 'Sorry, I did not recognize your command',
+  menu_greeting: 'What do you want to look up?'
 }.freeze
 
 MENU_REPLIES = [
@@ -48,7 +49,7 @@ def wait_for_any_input
 end
 
 def show_replies_menu(id, quick_replies)
-  say(id, 'What would you like to know?', quick_replies)
+  say(id, IDIOMS[:menu_greeting], quick_replies)
   wait_for_command
 end
 
@@ -93,7 +94,7 @@ def handle_api_request
       wait_for_command
     else
       message.reply(text: IDIOMS[:not_found])
-      # some meta-programming to call the callee 
+      # some meta-programming to call the callee
       callee = Proc.new { caller_locations.first.label }
       callee.call
     end
