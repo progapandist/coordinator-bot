@@ -90,10 +90,13 @@ def handle_api_request
     message.type # let user know we're doing something
     if parsed_response
       yield(parsed_response, message)
+      wait_for_command
     else
       message.reply(text: IDIOMS[:not_found])
+      # some meta-programming to call the callee 
+      callee = Proc.new { caller_locations.first.label }
+      callee.call
     end
-    wait_for_command
   end
 end
 
