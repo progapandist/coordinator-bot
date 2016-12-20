@@ -64,24 +64,25 @@ Bot.on :postback do |postback|
     say(sender_id, IDIOMS[:ask_location])
     process_coordinates(sender_id)
   when 'FULL_ADDRESS'
-    message.reply(text: IDIOMS[:ask_location])
-    show_full_address
+    say(sender_id, IDIOMS[:ask_location])
+    show_full_address(sender_id)
   end
 end
 
 def wait_for_command
   Bot.on :message do |message|
     puts "Received '#{message.inspect}' from #{message.sender}" # debug only
+    sender_id = message.sender['id']
     case message.text
     when /coord/i, /gps/i
       message.reply(text: IDIOMS[:ask_location])
-      process_coordinates(message.sender['id'])
+      process_coordinates(sender_id)
     when /full ad/i # we got the user even the address is misspelled
       message.reply(text: IDIOMS[:ask_location])
-      show_full_address
+      show_full_address(sender_id)
     else
       message.reply(text: IDIOMS[:unknown_command])
-      show_replies_menu(message.sender['id'], MENU_REPLIES)
+      show_replies_menu(sender_id, MENU_REPLIES)
     end
   end
 end
@@ -117,10 +118,10 @@ def process_coordinates(id)
   end
 end
 
-def show_full_address
-  handle_api_request do |api_response, message|
+def show_full_address(id)
+  handle_api_request do |api_response|
     full_address = extract_full_address(api_response)
-    message.reply(text: full_address)
+    say(id, full_address)
   end
 end
 
