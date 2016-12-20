@@ -27,7 +27,6 @@ def wait_for_user_input
   end
 end
 
-
 def process_coordinates
   handle_api_request do |api_response, message|
     coord = extract_coordinates(api_response)
@@ -56,7 +55,6 @@ def handle_api_request
     wait_for_user_input
   end
 end
-
 
 # Talk to API
 def get_parsed_response(url, query)
