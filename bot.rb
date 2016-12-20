@@ -56,6 +56,13 @@ Facebook::Messenger::Thread.set({
   ]
 }, access_token: ENV['ACCESS_TOKEN'])
 
+Facebook::Messenger::Thread.set({
+  setting_type: 'greeting',
+  greeting: {
+    text: 'Coordinator welcomes you!'
+  },
+}, access_token: ENV['ACCESS_TOKEN'])
+
 Bot.on :postback do |postback|
   sender_id = postback.sender['id']
   case postback.payload
