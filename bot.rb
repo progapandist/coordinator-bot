@@ -57,14 +57,38 @@ Facebook::Messenger::Thread.set({
 }, access_token: ENV['ACCESS_TOKEN'])
 
 Bot.on :postback do |postback|
+  sender_id = postback.sender['id']
   case postback.payload
   when 'START' then show_replies_menu(postback.sender['id'], MENU_REPLIES)
   when 'COORDINATES'
-    message.reply(text: IDIOMS[:ask_location])
-    process_coordinates
+    say(sender_id, IDIOMS[:ask_location])
+    process_coordinates(sender_id)
   when 'FULL_ADDRESS'
     message.reply(text: IDIOMS[:ask_location])
     show_full_address
+  end
+end
+
+def wait_for_command
+  Bot.on :message do |message|
+    puts "Received '#{message.inspect}' from #{message.sender}" # debug only
+    case message.text
+    when /coord/i, /gps/i
+      message.reply(text: IDIOMS[:ask_location])
+      process_coordinates(message.sender['id'])
+    when /full ad/i # we got the user even the address is misspelled
+      message.reply(text: IDIOMS[:ask_location])
+      show_full_address
+    else
+      message.reply(text: IDIOMS[:unknown_command])
+      show_replies_menu(message.sender['id'], MENU_REPLIES)
+    end
+  end
+end
+
+def wait_for_any_input
+  Bot.on :message do |message|
+    show_replies_menu(message.sender['id'], MENU_REPLIES)
   end
 end
 
@@ -80,39 +104,16 @@ def say(recipient_id, text, quick_replies = nil)
   Bot.deliver(message_options, access_token: ENV['ACCESS_TOKEN'])
 end
 
-
-def wait_for_any_input
-  Bot.on :message do |message|
-    show_replies_menu(message.sender['id'], MENU_REPLIES)
-  end
-end
-
 def show_replies_menu(id, quick_replies)
   say(id, IDIOMS[:menu_greeting], quick_replies)
   wait_for_command
 end
 
-def wait_for_command
-  Bot.on :message do |message|
-    puts "Received '#{message.inspect}' from #{message.sender}" # debug only
-    case message.text
-    when /coord/i, /gps/i
-      message.reply(text: IDIOMS[:ask_location])
-      process_coordinates
-    when /full ad/i # we got the user even the address is misspelled
-      message.reply(text: IDIOMS[:ask_location])
-      show_full_address
-    else
-      message.reply(text: IDIOMS[:unknown_command])
-      show_replies_menu(message.sender['id'], MENU_REPLIES)
-    end
-  end
-end
-
-def process_coordinates
-  handle_api_request do |api_response, message|
+def process_coordinates(id)
+  handle_api_request do |api_response|
     coord = extract_coordinates(api_response)
-    message.reply(text: "Latitude: #{coord['lat']}, Longitude: #{coord['lng']}")
+    text = "Latitude: #{coord['lat']}, Longitude: #{coord['lng']}"
+    say(id, text)
   end
 end
 
