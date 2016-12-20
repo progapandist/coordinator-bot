@@ -52,6 +52,7 @@ def show_full_address
   end
 end
 
+
 # Talk to API
 def get_parsed_response(url, query)
   response = HTTParty.get(url + query)
