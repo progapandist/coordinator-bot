@@ -29,14 +29,14 @@ end
 
 
 def process_coordinates
-  handle_user_command do |api_response, message|
+  handle_api_request do |api_response, message|
     coord = extract_coordinates(api_response)
     message.reply(text: "Latitude: #{coord['lat']} / Longitude: #{coord['lng']}")
   end
 end
 
 def show_full_address
-  handle_user_command do |api_response, message|
+  handle_api_request do |api_response, message|
     full_address = extract_full_address(api_response)
     message.reply(text: full_address)
   end
