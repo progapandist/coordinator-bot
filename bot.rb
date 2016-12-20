@@ -29,6 +29,8 @@ MENU_REPLIES = [
   }
 ]
 
+# Set call to action button when user is about to address bot
+# for the first time.
 Facebook::Messenger::Thread.set({
   setting_type: 'call_to_actions',
   thread_state: 'new_thread',
@@ -39,6 +41,7 @@ Facebook::Messenger::Thread.set({
   ]
 }, access_token: ENV['ACCESS_TOKEN'])
 
+# Create persistent menu
 Facebook::Messenger::Thread.set({
   setting_type: 'call_to_actions',
   thread_state: 'existing_thread',
@@ -56,6 +59,7 @@ Facebook::Messenger::Thread.set({
   ]
 }, access_token: ENV['ACCESS_TOKEN'])
 
+# Set greeting (for first contact)
 Facebook::Messenger::Thread.set({
   setting_type: 'greeting',
   greeting: {
@@ -63,19 +67,21 @@ Facebook::Messenger::Thread.set({
   },
 }, access_token: ENV['ACCESS_TOKEN'])
 
+# Logic for postbacks
 Bot.on :postback do |postback|
   sender_id = postback.sender['id']
   case postback.payload
   when 'START' then show_replies_menu(postback.sender['id'], MENU_REPLIES)
   when 'COORDINATES'
     say(sender_id, IDIOMS[:ask_location])
-    process_coordinates(sender_id)
+    show_coordinates(sender_id)
   when 'FULL_ADDRESS'
     say(sender_id, IDIOMS[:ask_location])
     show_full_address(sender_id)
   end
 end
 
+# Logic for quick replies and text commands
 def wait_for_command
   Bot.on :message do |message|
     puts "Received '#{message.inspect}' from #{message.sender}" # debug only
@@ -83,7 +89,7 @@ def wait_for_command
     case message.text
     when /coord/i, /gps/i
       message.reply(text: IDIOMS[:ask_location])
-      process_coordinates(sender_id)
+      show_coordinates(sender_id)
     when /full ad/i # we got the user even the address is misspelled
       message.reply(text: IDIOMS[:ask_location])
       show_full_address(sender_id)
@@ -94,13 +100,14 @@ def wait_for_command
   end
 end
 
+# Start conversation loop
 def wait_for_any_input
   Bot.on :message do |message|
     show_replies_menu(message.sender['id'], MENU_REPLIES)
   end
 end
 
-# helper function to send messages declaratively
+# helper function to send messages declaratively and directly
 def say(recipient_id, text, quick_replies = nil)
   message_options = {
   recipient: { id: recipient_id },
@@ -112,12 +119,14 @@ def say(recipient_id, text, quick_replies = nil)
   Bot.deliver(message_options, access_token: ENV['ACCESS_TOKEN'])
 end
 
+# Display a set of quick replies that serves as a menu
 def show_replies_menu(id, quick_replies)
   say(id, IDIOMS[:menu_greeting], quick_replies)
   wait_for_command
 end
 
-def process_coordinates(id)
+# Coordinates lookup
+def show_coordinates(id)
   handle_api_request do |api_response|
     coord = extract_coordinates(api_response)
     text = "Latitude: #{coord['lat']}, Longitude: #{coord['lng']}"
@@ -125,6 +134,7 @@ def process_coordinates(id)
   end
 end
 
+# Full address lookup
 def show_full_address(id)
   handle_api_request do |api_response|
     full_address = extract_full_address(api_response)
@@ -132,7 +142,7 @@ def show_full_address(id)
   end
 end
 
-# DRY-out the bot wrapper
+# DRY out replicate code in both actions
 def handle_api_request
   Bot.on :message do |message|
     parsed_response = get_parsed_response(API_URL, message.text)
@@ -142,13 +152,14 @@ def handle_api_request
       wait_for_any_input
     else
       message.reply(text: IDIOMS[:not_found])
-      # some meta-programming to call the callee
+      # meta-programming voodoo to call the callee
       callee = Proc.new { caller_locations.first.label }
       callee.call
     end
   end
 end
 
+# Talk to API
 def get_parsed_response(url, query)
   response = HTTParty.get(url + query)
   parsed = JSON.parse(response.body)
