@@ -34,6 +34,21 @@ def process_coordinates
   end
 end
 
+def show_full_address
+  Bot.on :message do |message|
+    parsed_response = get_parsed_response(API_URL, message.text)
+    if !parsed_response
+      message.reply(text: 'There were no resutls. Ask me again, please')
+      wait_for_user_input
+      break
+    end
+    message.type # let user know we're doing something
+    full_address = extract_full_address(parsed_response)
+    message.reply(text: full_address)
+    wait_for_user_input
+  end
+end
+
 # Talk to API
 def get_parsed_response(url, query)
   response = HTTParty.get(url + query)
