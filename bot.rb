@@ -29,6 +29,45 @@ MENU_REPLIES = [
   }
 ]
 
+Facebook::Messenger::Thread.set({
+  setting_type: 'call_to_actions',
+  thread_state: 'new_thread',
+  call_to_actions: [
+    {
+      payload: 'START'
+    }
+  ]
+}, access_token: ENV['ACCESS_TOKEN'])
+
+Facebook::Messenger::Thread.set({
+  setting_type: 'call_to_actions',
+  thread_state: 'existing_thread',
+  call_to_actions: [
+    {
+      type: 'postback',
+      title: 'Get coordinates',
+      payload: 'COORDINATES'
+    },
+    {
+      type: 'postback',
+      title: 'Get full address',
+      payload: 'FULL_ADDRESS'
+    }
+  ]
+}, access_token: ENV['ACCESS_TOKEN'])
+
+Bot.on :postback do |postback|
+  case postback.payload
+  when 'START' then show_replies_menu(postback.sender['id'], MENU_REPLIES)
+  when 'COORDINATES'
+    message.reply(text: IDIOMS[:ask_location])
+    process_coordinates
+  when 'FULL_ADDRESS'
+    message.reply(text: IDIOMS[:ask_location])
+    show_full_address
+  end
+end
+
 # helper function to send messages declaratively
 def say(recipient_id, text, quick_replies = nil)
   message_options = {
