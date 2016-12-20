@@ -15,6 +15,9 @@ def wait_for_user_input
     when /coord/i, /gps/i # we use regexp to match parts of strings
       message.reply(text: 'Enter destination')
       process_coordinates
+    when /full ad/i # we got the user even if he misspells address
+      message.reply(text: 'Enter destination')
+      show_full_address
     end
   end
 end
@@ -40,7 +43,7 @@ def show_full_address
     if !parsed_response
       message.reply(text: 'There were no resutls. Ask me again, please')
       wait_for_user_input
-      break
+      return
     end
     message.type # let user know we're doing something
     full_address = extract_full_address(parsed_response)
@@ -58,6 +61,11 @@ end
 
 def extract_coordinates(parsed)
   parsed['results'].first['geometry']['location']
+end
+
+
+def extract_full_address(parsed)
+  parsed['results'].first['formatted_address']
 end
 
 # launch the loop
