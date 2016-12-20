@@ -29,7 +29,7 @@ def process_coordinates
     end
     message.type # let user know we're doing something
     coord = extract_coordinates(parsed_response)
-    message.reply(text: "#{coord['lat']} : #{coord['lng']}")
+    message.reply(text: "Latitude: #{coord['lat']} / Longitude: #{coord['lng']}")
     wait_for_user_input
   end
 end
