@@ -21,6 +21,7 @@ PLATFORMS
 
 DEPENDENCIES
   facebook-messenger
+  httparty
   sinatra
 
 BUNDLED WITH
