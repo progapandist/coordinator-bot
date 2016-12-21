@@ -129,7 +129,7 @@ end
 def show_coordinates(id)
   handle_api_request do |api_response|
     coord = extract_coordinates(api_response)
-    text = "Latitude: #{coord['lat']}, Longitude: #{coord['lng']}"
+    text = "Latitude: #{coord['lat']}/ Longitude: #{coord['lng']}"
     say(id, text)
   end
 end
