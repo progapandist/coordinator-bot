@@ -145,7 +145,7 @@ def query_location(sender_id)
     parsed = get_parsed_response(REVERSE_URL, "#{lat},#{long}")
     address = extract_full_address(parsed)
     message.reply(text: "Coordinates of your location: Latitude #{lat}, Longitude #{long}. Looks like you're at #{address}")
-    wait_for_any_input # we're done with the command 
+    wait_for_any_input # we're done with this command
   end
 end
 
