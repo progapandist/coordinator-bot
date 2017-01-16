@@ -11,7 +11,7 @@ Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
 API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='.freeze
 
 IDIOMS = {
-  not_found: 'There were no resutls. Ask me again, please',
+  not_found: 'There were no results. Ask me again, please',
   ask_location: 'Enter destination',
   unknown_command: 'Sorry, I did not recognize your command',
   menu_greeting: 'What do you want to look up?'
@@ -56,6 +56,11 @@ Facebook::Messenger::Thread.set({
       type: 'postback',
       title: 'Get full address',
       payload: 'FULL_ADDRESS'
+    },
+    {
+      type: 'postback',
+      title: 'Send location',
+      payload: 'LOCATION'
     }
   ]
 }, access_token: ENV['ACCESS_TOKEN'])
@@ -79,6 +84,8 @@ Bot.on :postback do |postback|
   when 'FULL_ADDRESS'
     say(sender_id, IDIOMS[:ask_location])
     show_full_address(sender_id)
+  when 'LOCATION'
+    query_location(sender_id)
   end
 end
 
@@ -119,6 +126,15 @@ def say(recipient_id, text, quick_replies = nil)
   end
   Bot.deliver(message_options, access_token: ENV['ACCESS_TOKEN'])
 end
+
+def query_location(sender_id)
+  say(sender_id, 'Let us know your location', [{ content_type: 'location' }])
+  Bot.on :message do |message|
+    coords = message.attachments.first['payload']['coordinates']
+    message.reply(text: "Coordinates of your location: Latitude #{coords['lat']}, Longitude #{coords['long']}")
+  end
+end
+
 
 # Display a set of quick replies that serves as a menu
 def show_replies_menu(id, quick_replies)
