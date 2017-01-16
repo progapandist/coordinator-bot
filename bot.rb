@@ -134,6 +134,7 @@ def show_replies_menu(id, quick_replies)
   wait_for_command
 end
 
+# Info based on location data from device
 def query_location(sender_id)
   say(sender_id, 'Let me know your location', [{ content_type: 'location' }])
   Bot.on :message do |message|
