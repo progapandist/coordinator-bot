@@ -128,6 +128,12 @@ def say(recipient_id, text, quick_replies = nil)
   Bot.deliver(message_options, access_token: ENV['ACCESS_TOKEN'])
 end
 
+# Display a set of quick replies that serves as a menu
+def show_replies_menu(id, quick_replies)
+  say(id, IDIOMS[:menu_greeting], quick_replies)
+  wait_for_command
+end
+
 def query_location(sender_id)
   say(sender_id, 'Let me know your location', [{ content_type: 'location' }])
   Bot.on :message do |message|
@@ -140,13 +146,6 @@ def query_location(sender_id)
     address = extract_full_address(parsed)
     message.reply(text: "Coordinates of your location: Latitude #{coords['lat']}, Longitude #{coords['long']}. Looks like you're at #{address}")
   end
-end
-
-
-# Display a set of quick replies that serves as a menu
-def show_replies_menu(id, quick_replies)
-  say(id, IDIOMS[:menu_greeting], quick_replies)
-  wait_for_command
 end
 
 # Coordinates lookup
