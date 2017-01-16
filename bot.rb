@@ -137,7 +137,7 @@ def query_location(sender_id)
     # make sure there is no space between lat and lng
     response = HTTParty.get(REVERSE_URL + "#{lat},#{long}")
     parsed = JSON.parse(response.body)
-    address = parsed['results'].first['formatted_address']
+    address = extract_full_address(parsed)
     message.reply(text: "Coordinates of your location: Latitude #{coords['lat']}, Longitude #{coords['long']}. Looks like you're at #{address}")
   end
 end
