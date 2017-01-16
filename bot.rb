@@ -9,7 +9,7 @@ include Facebook::Messenger
 Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
 
 API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='.freeze
-REVERSE_URL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='
+REVERSE_URL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.freeze
 
 IDIOMS = {
   not_found: 'There were no results. Ask me again, please',
@@ -129,7 +129,7 @@ def say(recipient_id, text, quick_replies = nil)
 end
 
 def query_location(sender_id)
-  say(sender_id, 'Let us know your location', [{ content_type: 'location' }])
+  say(sender_id, 'Let me know your location', [{ content_type: 'location' }])
   Bot.on :message do |message|
     coords = message.attachments.first['payload']['coordinates']
     lat = coords['lat']
