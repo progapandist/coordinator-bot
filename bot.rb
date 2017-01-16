@@ -151,7 +151,7 @@ end
 
 # Coordinates lookup
 def show_coordinates(id)
-  handle_api_request do |api_response|
+  handle_api_request(API_URL) do |api_response|
     coord = extract_coordinates(api_response)
     text = "Latitude: #{coord['lat']} / Longitude: #{coord['lng']}"
     say(id, text)
@@ -160,16 +160,16 @@ end
 
 # Full address lookup
 def show_full_address(id)
-  handle_api_request do |api_response|
+  handle_api_request(API_URL) do |api_response|
     full_address = extract_full_address(api_response)
     say(id, full_address)
   end
 end
 
 # DRY out replicate code in both actions
-def handle_api_request
+def handle_api_request(url)
   Bot.on :message do |message|
-    parsed_response = get_parsed_response(API_URL, message.text)
+    parsed_response = get_parsed_response(url, message.text)
     message.type # let user know we're doing something
     if parsed_response
       yield(parsed_response, message)
