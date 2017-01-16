@@ -140,11 +140,12 @@ def query_location(sender_id)
     coords = message.attachments.first['payload']['coordinates']
     lat = coords['lat']
     long = coords['long']
+    message.type
     # make sure there is no space between lat and lng
-    response = HTTParty.get(REVERSE_URL + "#{lat},#{long}")
-    parsed = JSON.parse(response.body)
+    parsed = get_parsed_response(REVERSE_URL, "#{lat},#{long}")
     address = extract_full_address(parsed)
-    message.reply(text: "Coordinates of your location: Latitude #{coords['lat']}, Longitude #{coords['long']}. Looks like you're at #{address}")
+    message.reply(text: "Coordinates of your location: Latitude #{lat}, Longitude #{long}. Looks like you're at #{address}")
+    wait_for_any_input # we're done with the command 
   end
 end
 
