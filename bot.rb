@@ -9,6 +9,7 @@ include Facebook::Messenger
 Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
 
 API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='.freeze
+REVERSE_URL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='
 
 IDIOMS = {
   not_found: 'There were no results. Ask me again, please',
@@ -131,7 +132,13 @@ def query_location(sender_id)
   say(sender_id, 'Let us know your location', [{ content_type: 'location' }])
   Bot.on :message do |message|
     coords = message.attachments.first['payload']['coordinates']
-    message.reply(text: "Coordinates of your location: Latitude #{coords['lat']}, Longitude #{coords['long']}")
+    lat = coords['lat']
+    long = coords['long']
+    # make sure there is no space between lat and lng
+    response = HTTParty.get(REVERSE_URL + "#{lat},#{long}")
+    parsed = JSON.parse(response.body)
+    address = parsed['results'].first['formatted_address']
+    message.reply(text: "Coordinates of your location: Latitude #{coords['lat']}, Longitude #{coords['long']}. Looks like you're at #{address}")
   end
 end
 
