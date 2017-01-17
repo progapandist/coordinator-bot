@@ -171,6 +171,7 @@ def handle_user_location(message)
   parsed = get_parsed_response(REVERSE_URL, "#{lat},#{long}")
   address = extract_full_address(parsed)
   message.reply(text: "Coordinates of your location: Latitude #{lat}, Longitude #{long}. Looks like you're at #{address}")
+  wait_for_any_input
 end
 
 # Coordinates lookup
@@ -178,50 +179,48 @@ def show_coordinates(id)
   Bot.on :message do |message|
     if message_contains_location?(message)
       handle_user_location(message)
-      wait_for_any_input
     else
-      parsed_response = get_parsed_response(API_URL, message.text)
-      message.type # let user know we're doing something
-      if parsed_response
-        coord = extract_coordinates(parsed_response)
-        text = "Latitude: #{coord['lat']} / Longitude: #{coord['lng']}"
-        say(id, text)
-        wait_for_any_input
-      else
-        message.reply(text: IDIOMS[:not_found])
-        show_coordinates
-      end
+      handle_coordinates_lookup(message, id)
     end
+  end
+end
+
+def handle_coordinates_lookup(message, id)
+  parsed_response = get_parsed_response(API_URL, message.text)
+  message.type # let user know we're doing something
+  if parsed_response
+    coord = extract_coordinates(parsed_response)
+    text = "Latitude: #{coord['lat']} / Longitude: #{coord['lng']}"
+    say(id, text)
+    wait_for_any_input
+  else
+    message.reply(text: IDIOMS[:not_found])
+    show_coordinates
   end
 end
 
 # Full address lookup
 def show_full_address(id)
-  handle_api_request do |api_response|
-    full_address = extract_full_address(api_response)
-    say(id, full_address)
-  end
-end
-
-# DRY out replicate code in both actions
-def handle_api_request
   Bot.on :message do |message|
     if message_contains_location?(message)
       handle_user_location(message)
       wait_for_any_input
     else
-      parsed_response = get_parsed_response(API_URL, message.text)
-      message.type # let user know we're doing something
-      if parsed_response
-        yield(parsed_response, message)
-        wait_for_any_input
-      else
-        message.reply(text: IDIOMS[:not_found])
-        # meta-programming voodoo to call the callee
-        callee = Proc.new { caller_locations.first.label }
-        callee.call
-      end
+      handle_address_lookup(message, id)
     end
+  end
+end
+
+def handle_address_lookup(message, id)
+  parsed_response = get_parsed_response(API_URL, message.text)
+  message.type # let user know we're doing something
+  if parsed_response
+    full_address = extract_full_address(parsed_response)
+    say(id, full_address)
+    wait_for_any_input
+  else
+    message.reply(text: IDIOMS[:not_found])
+    show_full_address
   end
 end
 
