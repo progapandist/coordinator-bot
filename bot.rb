@@ -1,4 +1,4 @@
-require 'dotenv/load'
+# require 'dotenv/load'
 require 'facebook/messenger'
 require 'httparty'
 require 'json'
