@@ -2,11 +2,15 @@ require 'dotenv/load'
 require 'facebook/messenger'
 require 'httparty'
 require 'json'
+require_relative 'persistent_menu'
+require_relative 'greetings'
 include Facebook::Messenger
 # NOTE: ENV variables should be set directly in terminal for localhost
 
 # IMPORTANT! Subcribe your bot to your page
 Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
+PersistentMenu.enable
+Greetings.enable
 
 API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='.freeze
 REVERSE_URL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.freeze
@@ -21,7 +25,7 @@ IDIOMS = {
 MENU_REPLIES = [
   {
     content_type: 'text',
-    title: 'Coordinates',
+    title: 'GPS for address',
     payload: 'COORDINATES'
   },
   {
@@ -31,53 +35,10 @@ MENU_REPLIES = [
   },
   {
     content_type: 'text',
-    title: 'Your location info',
+    title: 'My location',
     payload: 'LOCATION'
   }
 ]
-
-# Set call to action button when user is about to address bot
-# for the first time.
-Facebook::Messenger::Thread.set({
-  setting_type: 'call_to_actions',
-  thread_state: 'new_thread',
-  call_to_actions: [
-    {
-      payload: 'START'
-    }
-  ]
-}, access_token: ENV['ACCESS_TOKEN'])
-
-# Create persistent menu
-Facebook::Messenger::Thread.set({
-  setting_type: 'call_to_actions',
-  thread_state: 'existing_thread',
-  call_to_actions: [
-    {
-      type: 'postback',
-      title: 'Coordinates lookup',
-      payload: 'COORDINATES'
-    },
-    {
-      type: 'postback',
-      title: 'Postal address lookup',
-      payload: 'FULL_ADDRESS'
-    },
-    {
-      type: 'postback',
-      title: 'Location lookup',
-      payload: 'LOCATION'
-    }
-  ]
-}, access_token: ENV['ACCESS_TOKEN'])
-
-# Set greeting (for first contact)
-Facebook::Messenger::Thread.set({
-  setting_type: 'greeting',
-  greeting: {
-    text: 'Coordinator welcomes you!'
-  },
-}, access_token: ENV['ACCESS_TOKEN'])
 
 # Logic for postbacks
 Bot.on :postback do |postback|
@@ -88,7 +49,7 @@ Bot.on :postback do |postback|
     say(sender_id, IDIOMS[:ask_location], [{ content_type: 'location' }])
     show_coordinates(sender_id)
   when 'FULL_ADDRESS'
-    say(sender_id, IDIOMS[:ask_location])
+    say(sender_id, IDIOMS[:ask_location], [{ content_type: 'location' }])
     show_full_address(sender_id)
   when 'LOCATION'
     lookup_location(sender_id)
@@ -105,7 +66,7 @@ def wait_for_command
       say(sender_id, IDIOMS[:ask_location], [{ content_type: 'location' }])
       show_coordinates(sender_id)
     when /full ad/i # we got the user even the address is misspelled
-      message.reply(text: IDIOMS[:ask_location])
+      say(sender_id, IDIOMS[:ask_location], [{ content_type: 'location' }])
       show_full_address(sender_id)
     when /location/i
       lookup_location(sender_id)
