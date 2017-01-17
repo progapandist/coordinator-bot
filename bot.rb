@@ -13,7 +13,7 @@ REVERSE_URL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.freeze
 
 IDIOMS = {
   not_found: 'There were no results. Type your destination again, please',
-  ask_location: 'Enter destination',
+  ask_location: 'Type in any destination or send us your location:',
   unknown_command: 'Sorry, I did not recognize your command',
   menu_greeting: 'What do you want to look up?'
 }.freeze
@@ -85,7 +85,7 @@ Bot.on :postback do |postback|
   case postback.payload
   when 'START' then show_replies_menu(postback.sender['id'], MENU_REPLIES)
   when 'COORDINATES'
-    say(sender_id, IDIOMS[:ask_location])
+    say(sender_id, IDIOMS[:ask_location], [{ content_type: 'location' }])
     show_coordinates(sender_id)
   when 'FULL_ADDRESS'
     say(sender_id, IDIOMS[:ask_location])
