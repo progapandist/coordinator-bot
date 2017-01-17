@@ -195,7 +195,7 @@ def handle_coordinates_lookup(message, id)
     wait_for_any_input
   else
     message.reply(text: IDIOMS[:not_found])
-    show_coordinates
+    show_coordinates(id)
   end
 end
 
@@ -220,7 +220,7 @@ def handle_address_lookup(message, id)
     wait_for_any_input
   else
     message.reply(text: IDIOMS[:not_found])
-    show_full_address
+    show_full_address(id)
   end
 end
 
