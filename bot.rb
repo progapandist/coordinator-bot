@@ -175,10 +175,23 @@ end
 
 # Coordinates lookup
 def show_coordinates(id)
-  handle_api_request do |api_response|
-    coord = extract_coordinates(api_response)
-    text = "Latitude: #{coord['lat']} / Longitude: #{coord['lng']}"
-    say(id, text)
+  Bot.on :message do |message|
+    if message_contains_location?(message)
+      handle_user_location(message)
+      wait_for_any_input
+    else
+      parsed_response = get_parsed_response(API_URL, message.text)
+      message.type # let user know we're doing something
+      if parsed_response
+        coord = extract_coordinates(parsed_response)
+        text = "Latitude: #{coord['lat']} / Longitude: #{coord['lng']}"
+        say(id, text)
+        wait_for_any_input
+      else
+        message.reply(text: IDIOMS[:not_found])
+        show_coordinates
+      end
+    end
   end
 end
 
