@@ -1,4 +1,4 @@
-# require 'dotenv/load' # comment this line out before pushing to Heroku! 
+# require 'dotenv/load' # comment this line out before pushing to Heroku!
 require 'facebook/messenger'
 require 'httparty'
 require 'json'
@@ -80,7 +80,11 @@ end
 # Start conversation loop
 def wait_for_any_input
   Bot.on :message do |message|
-    show_replies_menu(message.sender['id'], MENU_REPLIES)
+    if message_contains_location?(message)
+      handle_user_location(message)
+    else
+      show_replies_menu(message.sender['id'], MENU_REPLIES)
+    end 
   end
 end
 
