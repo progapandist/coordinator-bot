@@ -55,17 +55,17 @@ Facebook::Messenger::Thread.set({
   call_to_actions: [
     {
       type: 'postback',
-      title: 'Get coordinates',
+      title: 'Coordinates lookup',
       payload: 'COORDINATES'
     },
     {
       type: 'postback',
-      title: 'Get full address',
+      title: 'Postal address lookup',
       payload: 'FULL_ADDRESS'
     },
     {
       type: 'postback',
-      title: 'Send location',
+      title: 'Location lookup',
       payload: 'LOCATION'
     }
   ]
