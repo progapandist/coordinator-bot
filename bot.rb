@@ -13,7 +13,7 @@ PersistentMenu.enable
 Greetings.enable
 
 API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address='.freeze
-REVERSE_URL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.freeze
+REVERSE_API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.freeze
 
 IDIOMS = {
   not_found: 'There were no results. Type your destination again, please',
@@ -84,7 +84,7 @@ def wait_for_any_input
       handle_user_location(message)
     else
       show_replies_menu(message.sender['id'], MENU_REPLIES)
-    end 
+    end
   end
 end
 
@@ -133,7 +133,7 @@ def handle_user_location(message)
   long = coords['long']
   message.type
   # make sure there is no space between lat and lng
-  parsed = get_parsed_response(REVERSE_URL, "#{lat},#{long}")
+  parsed = get_parsed_response(REVERSE_API_URL, "#{lat},#{long}")
   address = extract_full_address(parsed)
   message.reply(text: "Coordinates of your location: Latitude #{lat}, Longitude #{long}. Looks like you're at #{address}")
   wait_for_any_input
