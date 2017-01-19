@@ -152,7 +152,7 @@ def show_coordinates(id)
 end
 
 def handle_coordinates_lookup(message, id)
-  query = encode_ascii(text.message)
+  query = encode_ascii(message.text)
   parsed_response = get_parsed_response(API_URL, query)
   message.type # let user know we're doing something
   if parsed_response
