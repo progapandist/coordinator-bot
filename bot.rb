@@ -1,5 +1,6 @@
 # require 'dotenv/load' # comment this line out before pushing to Heroku!
 require 'facebook/messenger'
+require 'addressable/uri'
 require 'httparty'
 require 'json'
 require_relative 'persistent_menu'
@@ -151,7 +152,8 @@ def show_coordinates(id)
 end
 
 def handle_coordinates_lookup(message, id)
-  parsed_response = get_parsed_response(API_URL, message.text)
+  query = encode_ascii(text.message)
+  parsed_response = get_parsed_response(API_URL, query)
   message.type # let user know we're doing something
   if parsed_response
     coord = extract_coordinates(parsed_response)
@@ -162,6 +164,10 @@ def handle_coordinates_lookup(message, id)
     message.reply(text: IDIOMS[:not_found])
     show_coordinates(id)
   end
+end
+
+def encode_ascii(s)
+  Addressable::URI.parse(s).normalize.to_s
 end
 
 # Full address lookup
