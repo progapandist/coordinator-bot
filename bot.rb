@@ -166,10 +166,6 @@ def handle_coordinates_lookup(message, id)
   end
 end
 
-def encode_ascii(s)
-  Addressable::URI.parse(s).normalize.to_s
-end
-
 # Full address lookup
 def show_full_address(id)
   Bot.on :message do |message|
@@ -202,6 +198,11 @@ def get_parsed_response(url, query)
   parsed = JSON.parse(response.body)
   parsed['status'] != 'ZERO_RESULTS' ? parsed : nil
 end
+
+def encode_ascii(s)
+  Addressable::URI.parse(s).normalize.to_s
+end
+
 
 def extract_coordinates(parsed)
   parsed['results'].first['geometry']['location']
