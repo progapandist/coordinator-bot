@@ -183,7 +183,8 @@ def show_full_address(id)
 end
 
 def handle_address_lookup(message, id)
-  parsed_response = get_parsed_response(API_URL, message.text)
+  query = encode_ascii(message.text)
+  parsed_response = get_parsed_response(API_URL, query)
   message.type # let user know we're doing something
   if parsed_response
     full_address = extract_full_address(parsed_response)
