@@ -38,7 +38,7 @@ MENU_REPLIES = [
     title: 'My location',
     payload: 'LOCATION'
   }
-]
+].freeze
 
 # Logic for postbacks
 Bot.on :postback do |postback|
