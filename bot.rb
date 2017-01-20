@@ -40,18 +40,20 @@ MENU_REPLIES = [
   }
 ].freeze
 
+TYPE_LOCATION = [{ content_type: 'location' }]
+
 # Logic for postbacks
 Bot.on :postback do |postback|
   sender_id = postback.sender['id']
   case postback.payload
   when 'START' then show_replies_menu(postback.sender['id'], MENU_REPLIES)
   when 'COORDINATES'
-    say(sender_id, IDIOMS[:ask_location], [{ content_type: 'location' }])
+    say(sender_id, IDIOMS[:ask_location], TYPE_LOCATION)
     show_coordinates(sender_id)
   when 'FULL_ADDRESS'
-    say(sender_id, IDIOMS[:ask_location], [{ content_type: 'location' }])
+    say(sender_id, IDIOMS[:ask_location], TYPE_LOCATION)
     show_full_address(sender_id)
-  when 'LOCATION'
+  when 'TYPE_LOCATION'
     lookup_location(sender_id)
   end
 end
@@ -63,10 +65,10 @@ def wait_for_command
     sender_id = message.sender['id']
     case message.text
     when /coord/i, /gps/i
-      say(sender_id, IDIOMS[:ask_location], [{ content_type: 'location' }])
+      say(sender_id, IDIOMS[:ask_location], TYPE_LOCATION)
       show_coordinates(sender_id)
     when /full ad/i # we got the user even the address is misspelled
-      say(sender_id, IDIOMS[:ask_location], [{ content_type: 'location' }])
+      say(sender_id, IDIOMS[:ask_location], TYPE_LOCATION)
       show_full_address(sender_id)
     when /location/i
       lookup_location(sender_id)
@@ -116,7 +118,7 @@ end
 
 # Lookup based on location data from user's device
 def lookup_location(sender_id)
-  say(sender_id, 'Let me know your location:', [{ content_type: 'location' }])
+  say(sender_id, 'Let me know your location:', TYPE_LOCATION)
   Bot.on :message do |message|
     if message_contains_location?(message)
       handle_user_location(message)
