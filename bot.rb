@@ -42,7 +42,6 @@ MENU_REPLIES = [
 
 TYPE_LOCATION = [{ content_type: 'location' }]
 
-
 # Logic for postbacks
 Bot.on :postback do |postback|
   sender_id = postback.sender['id']
