@@ -6,7 +6,6 @@ require 'json'
 require_relative 'persistent_menu'
 require_relative 'greetings'
 include Facebook::Messenger
-# NOTE: ENV variables should be set directly in terminal for localhost
 
 # IMPORTANT! Subcribe your bot to your page
 Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
