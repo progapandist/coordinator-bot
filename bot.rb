@@ -53,7 +53,7 @@ Bot.on :postback do |postback|
   when 'FULL_ADDRESS'
     say(sender_id, IDIOMS[:ask_location], TYPE_LOCATION)
     show_full_address(sender_id)
-  when 'TYPE_LOCATION'
+  when 'LOCATION'
     lookup_location(sender_id)
   end
 end
