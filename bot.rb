@@ -175,12 +175,12 @@ end
 # Full address lookup
 def show_full_address(id)
   Bot.on :message do |message|
-    if !is_text_message?(message)
-      say(id, "Why are you trying to fool me, human?")
-      wait_for_any_input
+    if message_contains_location?(message)
+      handle_user_location(message)
     else
-      if message_contains_location?(message)
-        handle_user_location(message)
+      if !is_text_message?(message)
+        say(id, "Why are you trying to fool me, human?")
+        wait_for_any_input
       else
         handle_address_lookup(message, id)
       end
