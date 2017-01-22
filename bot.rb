@@ -155,10 +155,6 @@ def show_coordinates(id)
   end
 end
 
-def is_text_message?(message)
-  !message.text.nil?
-end
-
 def handle_coordinates_lookup(message, id)
   query = encode_ascii(message.text)
   parsed_response = get_parsed_response(API_URL, query)
@@ -211,6 +207,10 @@ end
 
 def encode_ascii(s)
   Addressable::URI.parse(s).normalize.to_s
+end
+
+def is_text_message?(message)
+  !message.text.nil?
 end
 
 
