@@ -147,10 +147,12 @@ def show_coordinates(id)
     if !is_text_message?(message)
       say(id, "Why are you trying to fool me, human?")
       wait_for_any_input
-    elsif message_contains_location?(message)
-      handle_user_location(message)
     else
-      handle_coordinates_lookup(message, id)
+      if message_contains_location?(message)
+        handle_user_location(message)
+      else
+        handle_coordinates_lookup(message, id)
+      end
     end
   end
 end
@@ -176,10 +178,12 @@ def show_full_address(id)
     if !is_text_message?(message)
       say(id, "Why are you trying to fool me, human?")
       wait_for_any_input
-    elsif message_contains_location?(message)
-      handle_user_location(message)
     else
-      handle_address_lookup(message, id)
+      if message_contains_location?(message)
+        handle_user_location(message)
+      else
+        handle_address_lookup(message, id)
+      end
     end
   end
 end
