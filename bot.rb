@@ -144,12 +144,19 @@ end
 # Coordinates lookup
 def show_coordinates(id)
   Bot.on :message do |message|
-    if message_contains_location?(message)
+    if !is_text_message?(message)
+      say(id, "Why are you trying to fool me, human?")
+      wait_for_any_input
+    elsif message_contains_location?(message)
       handle_user_location(message)
     else
       handle_coordinates_lookup(message, id)
     end
   end
+end
+
+def is_text_message?(message)
+  !message.text.nil?
 end
 
 def handle_coordinates_lookup(message, id)
@@ -170,9 +177,11 @@ end
 # Full address lookup
 def show_full_address(id)
   Bot.on :message do |message|
-    if message_contains_location?(message)
-      handle_user_location(message)
+    if !is_text_message?(message)
+      say(id, "Why are you trying to fool me, human?")
       wait_for_any_input
+    elsif message_contains_location?(message)
+      handle_user_location(message)
     else
       handle_address_lookup(message, id)
     end
