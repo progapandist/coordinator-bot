@@ -82,6 +82,7 @@ end
 # Start conversation loop
 def wait_for_any_input
   Bot.on :message do |message|
+    puts "Received '#{message.inspect}' from #{message.sender}" # debug only
     if message_contains_location?(message)
       handle_user_location(message)
     else
